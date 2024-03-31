@@ -1,31 +1,36 @@
 import { useState } from "react";
-import Button from "../components/Button";
-import InputField from "../components/InputField";
+import Image from "next/image";
 import { toast } from "react-toastify";
+import Link from "next/link";
+import {useRouter} from 'next/navigation'
+
 const Signup = () => {
   const [userData, setUserData] = useState({
     file: "",
-    username: "",
+    name: "",
     email: "",
     password: "",
   });
-
-  const handleVlaue = (value, name, type) => {
+  const route =useRouter();
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
     setUserData((pre) => ({
       ...pre,
-      [name]: type == "file" ? value.name : value,
+      [name]: name === "file" ? files[0]?.name : value,
     }));
   };
-  console.log("userDatga", userData);
+  console.log("useData1", userData);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let formData = new FormData();
 
-    const formData = new FormData();
     formData.append("image", userData.file);
-    formData.append("name", userData.username);
+    formData.append("name", userData.name);
     formData.append("email", userData.email);
     formData.append("password", userData.password);
 
+    console.log("data2", formData);
     let data = await fetch("http://localhost:8000/api/register", {
       method: "post",
       Header: {
@@ -33,55 +38,80 @@ const Signup = () => {
       },
       body: formData,
     });
+
     let res = await data.json();
     if (res.status == 200) {
       toast.success(`${res.message}`);
+     setTimeout(()=>{
+      route.push('/login') 
+     },1000) 
     }
   };
+
   return (
-    <form onSubmit={handleSubmit}>
-      <div className=" flex flex-col max-w-min  m-auto">
-        <h1 className=" mb-5   mt-16  text-center ">User Profile:</h1>
-        <InputField
-          type="file"
-          placeholder="Enter Your Photo"
-          label="Avtar :"
-          name="file"
-          handleVlaue={handleVlaue}
-          className=" border  py-4   mt-3  mb-3"
-        />
-        <InputField
-          type="text"
-          placeholder="Enter Your Name"
-          label="Name :"
-          name="username"
-          handleVlaue={handleVlaue}
-          className=" border px-6 py-4   mt-3  mb-3"
-        />
-        <InputField
-          type="email"
-          placeholder="Enter Your Email"
-          label="Email :"
-          name="email"
-          handleVlaue={handleVlaue}
-          className=" border px-6 py-4   mt-3 mb-3"
-        />
-        <InputField
-          type="password"
-          placeholder="Enter Your Password"
-          label="Password :"
-          name="password"
-          handleVlaue={handleVlaue}
-          className=" border px-6 py-4   mt-3 mb-3"
-        />
-        <Button
-          type="submit"
-          className=" bg-slate-700 text-white  px-5 py-4 border"
-        >
-          Sign Up
-        </Button>
-      </div>
-    </form>
+    <>
+      <h1 className=" mb-4  mt-20 text-center  font-bold">
+        Create Your Profile:{" "}
+      </h1>
+
+      <form
+        onSubmit={handleSubmit}
+        className=" flex  m-auto max-w-max  p-8 shadow-lg  "
+      >
+        <div>
+          <Image
+            src="/logo.avif"
+            width={500}
+            height={500}
+            alt="Picture of the author"
+          />
+        </div>
+        <div className=" flex flex-col  justify-around   ">
+          <input
+            type="file"
+            placeholder="Add Your Photo"
+            name="file"
+            onChange={handleChange}
+            className=" border  py-2 px-6  mx-2"
+          />
+          <input
+            type="name"
+            placeholder="Enter Your Name"
+            name="name"
+            onChange={handleChange}
+            className=" border    py-2 px-6 mx-2"
+          />
+          <input
+            type="email"
+            placeholder="Enter Your Email"
+            name="email"
+            onChange={handleChange}
+            className=" border  py-2 px-6 mx-2"
+          />
+          <input
+            type="password"
+            placeholder="Enter Your Password"
+            name="password"
+            onChange={handleChange}
+            className=" border  py-2 px-6 mx-2"
+          />
+          <div>
+            {" "}
+            <button
+              type="submit"
+              className=" border  bg-slate-700 text-white py-2 px-6 m-2"
+            >
+              Signup
+            </button>
+            <Link
+              href="/login"
+              className=" border  bg-slate-700 text-white py-2 px-6 m-2"
+            >
+            Login</Link>
+          </div>
+        </div>
+      </form>
+    </>
   );
 };
 

@@ -1,5 +1,6 @@
 
-const useService=()=>{
+const useService=({action,url,body})=>{
+    console.log(action,url,body)
 
     return []
 
